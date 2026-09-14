@@ -33,7 +33,6 @@
     <header class="px-4 pb-4 pt-safe bg-gray-800 flex justify-between items-center z-10 shrink-0">
         <div class="flex items-center gap-2">
             <h1 class="text-xl font-bold text-purple-400">MusicPlay</h1>
-            <!-- Tombol Instal Dinamis -->
             <button id="installBtn" class="hidden bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md transition">
                 ⬇ Instal App
             </button>
@@ -72,21 +71,27 @@
             </button>
         </div>
 
-        <div class="flex items-center gap-2 w-full">
-            <button id="prevBtn" class="text-gray-400 hover:text-white transition px-2 shrink-0">
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-            </button>
-            <!-- Posisi SVG ditengahkan sempurna, ml-1 dihapus, ditambah transform tipis untuk visual balance -->
-            <button id="playPauseBtn" class="shrink-0 bg-purple-600 hover:bg-purple-700 text-white rounded-full w-10 h-10 flex items-center justify-center transition shadow-lg">
-                <svg class="w-6 h-6 fill-current" style="transform: translateX(1px);" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            <button id="nextBtn" class="text-gray-400 hover:text-white transition px-2 shrink-0">
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-            </button>
+        <!-- Perbaikan Tata Letak Baris Bawah agar Anti-Potong -->
+        <div class="flex items-center w-full">
+            <!-- Grup Tombol Navigasi -->
+            <div class="flex items-center gap-1 shrink-0">
+                <button id="prevBtn" class="text-gray-400 hover:text-white transition p-1">
+                    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                </button>
+                <button id="playPauseBtn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-full w-10 h-10 flex items-center justify-center transition shadow-lg mx-1">
+                    <svg class="w-6 h-6 fill-current" style="transform: translateX(1px);" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <button id="nextBtn" class="text-gray-400 hover:text-white transition p-1">
+                    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                </button>
+            </div>
             
-            <span id="currentTime" class="text-xs text-gray-400 font-mono w-9 text-right shrink-0">0:00</span>
-            <input type="range" id="progressBar" value="0" min="0" max="100" class="flex-1 h-1 bg-gray-700 rounded-lg appearance-none">
-            <span id="totalTime" class="text-xs text-gray-400 font-mono w-9 shrink-0">0:00</span>
+            <!-- Grup Progress Bar & Waktu (Terkunci Min-W-0) -->
+            <div class="flex items-center flex-1 min-w-0 ml-2">
+                <span id="currentTime" class="text-[11px] text-gray-400 font-mono w-9 text-right shrink-0">0:00</span>
+                <input type="range" id="progressBar" value="0" min="0" max="100" class="flex-1 mx-2 h-1 bg-gray-700 rounded-lg appearance-none">
+                <span id="totalTime" class="text-[11px] text-gray-400 font-mono w-9 text-left shrink-0">0:00</span>
+            </div>
         </div>
         
         <audio id="audioPlayer" class="hidden" crossorigin="anonymous"></audio>
@@ -95,13 +100,12 @@
     <script>
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 
-        // Logika Tombol Instal (A2HS)
         let deferredPrompt;
         const installBtn = document.getElementById('installBtn');
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.classList.remove('hidden'); // Munculkan tombol jika bisa diinstal
+            installBtn.classList.remove('hidden');
         });
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
@@ -125,7 +129,6 @@
         const currentTimeEl = document.getElementById('currentTime');
         const totalTimeEl = document.getElementById('totalTime');
         
-        // Ikon SVG presisi
         const iconPlay = `<svg class="w-6 h-6 fill-current" style="transform: translateX(1px);" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
         const iconPause = `<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
         
@@ -134,9 +137,6 @@
         let isShuffle = localStorage.getItem('musikku_shuffle') === 'true';
         updateShuffleUI();
 
-        // ----------------------------------------------------
-        // INJEKSI WEB AUDIO API (EQUALIZER BASS BOOST)
-        // ----------------------------------------------------
         let audioCtx;
         let isAudioSetup = false;
 
@@ -145,17 +145,14 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const track = audioCtx.createMediaElementSource(audioPlayer);
             
-            // Membuat Filter Bass
             const bassFilter = audioCtx.createBiquadFilter();
-            bassFilter.type = "lowshelf"; // Fokus pada nada rendah
-            bassFilter.frequency.value = 150; // Rentang frekuensi bass (Hz)
-            bassFilter.gain.value = 6; // Tambah dorongan bass sebesar 6 desibel
+            bassFilter.type = "lowshelf";
+            bassFilter.frequency.value = 150; 
+            bassFilter.gain.value = 6; 
 
-            // Menyambungkan rute suara: Audio Asli -> Filter Bass -> Speaker
             track.connect(bassFilter).connect(audioCtx.destination);
             isAudioSetup = true;
         }
-        // ----------------------------------------------------
 
         function formatTime(seconds) {
             if (isNaN(seconds)) return "0:00";
@@ -167,7 +164,7 @@
         playPauseBtn.addEventListener('click', () => {
             if (allSongs.length === 0) return;
             setupAudioEQ();
-            if (audioCtx.state === 'suspended') audioCtx.resume(); // Wajib dinyalakan setelah interaksi user
+            if (audioCtx.state === 'suspended') audioCtx.resume(); 
             
             if (audioPlayer.paused) {
                 audioPlayer.play();
