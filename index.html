@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MusikKu PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans h-screen flex flex-col">
+    <!-- Header -->
+    <header class="p-4 bg-gray-800 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-bold text-purple-400">MusicPlay</h1>
+        <label class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-full cursor-pointer text-sm font-semibold transition">
+            Pilih Lagu
+            <input type="file" id="fileInput" class="hidden" multiple accept="audio/*">
+        </label>
+    </header>
+
+    <!-- Daftar Putar (Playlist) -->
+    <main class="flex-1 overflow-y-auto p-2">
+        <ul id="playlist" class="space-y-1">
+            <li class="text-center text-gray-500 mt-10">Belum ada lagu. Klik "Pilih Lagu" untuk memulai.</li>
+        </ul>
+    </main>
+
+    <!-- Pemutar Bawah -->
+    <footer class="bg-gray-800 p-4 border-t border-gray-700">
+        <div id="nowPlaying" class="text-sm font-semibold mb-2 truncate text-purple-300">Tidak ada yang diputar</div>
+        <audio id="audioPlayer" controls class="w-full h-10 outline-none"></audio>
+    </footer>
+
+    <script>
+        // Registrasi Service Worker untuk Mode Offline
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        const fileInput = document.getElementById('fileInput');
+        const playlistUI = document.getElementById('playlist');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const nowPlaying = document.getElementById('nowPlaying');
+        
+        let playlist = [];
+        let currentIndex = 0;
+
+        // Membaca file yang dipilih pengguna
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files).filter(file => file.type.startsWith('audio/'));
+            if (files.length === 0) return;
+            
+            playlist = files;
+            renderPlaylist();
+            playSong(0);
+        });
+
+        // Menampilkan daftar lagu
+        function renderPlaylist() {
+            playlistUI.innerHTML = '';
+            playlist.forEach((file, index) => {
+                const li = document.createElement('li');
+                li.className = 'p-3 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700 border border-gray-700 truncate text-sm transition';
+                li.textContent = file.name.replace(/\.[^/.]+$/, ""); // Hapus ekstensi
+                li.onclick = () => playSong(index);
+                
+                if (index === currentIndex) {
+                    li.classList.replace('bg-gray-800', 'bg-purple-900');
+                    li.classList.add('font-bold');
+                }
+                
+                playlistUI.appendChild(li);
+            });
+        }
+
+        // Memutar lagu berdasarkan indeks
+        function playSong(index) {
+            if (playlist.length === 0) return;
+            
+            currentIndex = index;
+            const file = playlist[index];
+            const fileURL = URL.createObjectURL(file); // Konversi file lokal ke URL browser
+            
+            audioPlayer.src = fileURL;
+            audioPlayer.play();
+            nowPlaying.textContent = file.name;
+            
+            renderPlaylist(); // Perbarui *highlight* pada daftar
+        }
+
+        // Putar lagu selanjutnya otomatis
+        audioPlayer.addEventListener('ended', () => {
+            if (currentIndex < playlist.length - 1) {
+                playSong(currentIndex + 1);
+            }
+        });
+    </script>
+</body>
+</html>
