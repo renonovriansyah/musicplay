@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MusicPlay</title>
+    <title>MusikKu PWA</title>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Animasi teks berjalan untuk judul lagu panjang */
         .scrolling-container {
             overflow: hidden;
             white-space: nowrap;
@@ -25,16 +24,15 @@
             0% { transform: translate(0, 0); }
             100% { transform: translate(-100%, 0); }
         }
-        /* Kustomisasi warna Progress Bar */
         input[type=range] {
-            accent-color: #a855f7; /* Warna ungu Tailwind */
+            accent-color: #a855f7;
             cursor: pointer;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white font-sans h-screen flex flex-col">
+<body class="bg-gray-900 text-white font-sans h-screen flex flex-col overflow-hidden">
     <!-- Header -->
-    <header class="p-4 bg-gray-800 flex justify-between items-center z-10">
+    <header class="p-4 bg-gray-800 flex justify-between items-center z-10 shrink-0">
         <h1 class="text-xl font-bold text-purple-400">MusicPlay</h1>
         <label class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-full cursor-pointer text-sm font-semibold transition">
             Pilih Folder
@@ -43,22 +41,31 @@
     </header>
 
     <!-- Bar Pencarian -->
-    <div class="px-4 pb-3 bg-gray-800 shadow-md z-10">
+    <div class="px-4 pb-3 bg-gray-800 shadow-md z-10 shrink-0">
         <input type="text" id="searchInput" placeholder="Cari lagu..." class="w-full bg-gray-700 text-gray-300 px-4 py-2 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 transition text-sm">
     </div>
 
-    <!-- Daftar Putar -->
+    <!-- Daftar Putar (Area Scroll) -->
     <main class="flex-1 overflow-y-auto p-4">
         <div id="playlist">
-            <div class="text-center text-gray-500 mt-10" id="emptyState">Belum ada lagu. Klik "Pilih Folder" musikmu.</div>
+            <!-- Tampilan Kosong (Empty State) dengan Ikon Ringan -->
+            <div class="text-center flex flex-col items-center justify-center mt-20" id="emptyState">
+                <div class="animate-pulse bg-gray-800 p-5 rounded-full mb-4 shadow-lg">
+                    <svg class="w-12 h-12 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.236l8-1.6V11.114A4.369 4.369 0 0015 11c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
+                    </svg>
+                </div>
+                <p class="text-gray-300 font-medium text-lg">Ruang Musik Kosong</p>
+                <p class="text-gray-500 text-sm mt-1">Ketuk "Pilih Folder" untuk memuat daftar lagumu.</p>
+            </div>
         </div>
     </main>
 
-    <!-- Pemutar Bawah Terintegrasi -->
-    <footer class="bg-gray-800 p-4 border-t border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)]">
-        <!-- Judul Animasi & Shuffle -->
-        <div class="flex justify-between items-center mb-3 gap-3">
-            <div class="scrolling-container bg-gray-900 rounded-lg py-1 px-2">
+    <!-- Pemutar Bawah Terintegrasi (Dibuat statis dengan shrink-0) -->
+    <footer class="bg-gray-800 p-4 border-t border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)] shrink-0">
+        <!-- Baris 1: Judul Animasi & Shuffle -->
+        <div class="flex justify-between items-center mb-3 gap-3 w-full">
+            <div class="scrolling-container bg-gray-900 rounded-lg py-1 px-2 flex-1">
                 <div id="nowPlaying" class="scrolling-text text-sm font-semibold text-purple-300">Tidak ada yang diputar</div>
             </div>
             <button id="shuffleBtn" class="shrink-0 text-gray-500 hover:text-purple-400 transition font-bold text-xs bg-gray-700 px-3 py-1.5 rounded-full">
@@ -66,18 +73,17 @@
             </button>
         </div>
 
-        <!-- Kontrol Audio & Progress Bar -->
-        <div class="flex items-center gap-3">
-            <button id="prevBtn" class="text-gray-400 hover:text-white transition text-lg">⏮️</button>
-            <button id="playPauseBtn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-full w-10 h-10 flex items-center justify-center transition shadow-lg">▶️</button>
-            <button id="nextBtn" class="text-gray-400 hover:text-white transition text-lg">⏭️</button>
+        <!-- Baris 2: Kontrol Audio & Progress Bar -->
+        <div class="flex items-center gap-2 w-full">
+            <button id="prevBtn" class="text-gray-400 hover:text-white transition text-lg px-2 shrink-0">⏮️</button>
+            <button id="playPauseBtn" class="shrink-0 bg-purple-600 hover:bg-purple-700 text-white rounded-full w-10 h-10 flex items-center justify-center transition shadow-lg">▶️</button>
+            <button id="nextBtn" class="text-gray-400 hover:text-white transition text-lg px-2 shrink-0">⏭️</button>
             
-            <span id="currentTime" class="text-xs text-gray-400 font-mono w-8 text-right">0:00</span>
+            <span id="currentTime" class="text-xs text-gray-400 font-mono w-9 text-right shrink-0">0:00</span>
             <input type="range" id="progressBar" value="0" min="0" max="100" class="flex-1 h-1 bg-gray-700 rounded-lg appearance-none">
-            <span id="totalTime" class="text-xs text-gray-400 font-mono w-8">0:00</span>
+            <span id="totalTime" class="text-xs text-gray-400 font-mono w-9 shrink-0">0:00</span>
         </div>
         
-        <!-- Elemen Audio Asli Disembunyikan -->
         <audio id="audioPlayer" class="hidden"></audio>
     </footer>
 
@@ -89,7 +95,6 @@
         const emptyState = document.getElementById('emptyState');
         const searchInput = document.getElementById('searchInput');
         
-        // Komponen Pemutar Kustom
         const audioPlayer = document.getElementById('audioPlayer');
         const nowPlaying = document.getElementById('nowPlaying');
         const shuffleBtn = document.getElementById('shuffleBtn');
@@ -103,7 +108,6 @@
         let isShuffle = localStorage.getItem('musikku_shuffle') === 'true';
         updateShuffleUI();
 
-        // Format Waktu ke Menit:Detik
         function formatTime(seconds) {
             if (isNaN(seconds)) return "0:00";
             const m = Math.floor(seconds / 60);
@@ -111,7 +115,6 @@
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
-        // Toggle Play/Pause
         playPauseBtn.addEventListener('click', () => {
             if (allSongs.length === 0) return;
             if (audioPlayer.paused) {
@@ -124,7 +127,6 @@
         audioPlayer.addEventListener('play', () => playPauseBtn.textContent = '⏸️');
         audioPlayer.addEventListener('pause', () => playPauseBtn.textContent = '▶️');
 
-        // Update Progress Bar
         audioPlayer.addEventListener('timeupdate', () => {
             const current = audioPlayer.currentTime;
             const duration = audioPlayer.duration;
@@ -134,12 +136,10 @@
             }
         });
 
-        // Update Durasi Total Saat Lagu Dimuat
         audioPlayer.addEventListener('loadedmetadata', () => {
             totalTimeEl.textContent = formatTime(audioPlayer.duration);
         });
 
-        // Geser Progress Bar Secara Manual
         progressBar.addEventListener('input', (e) => {
             if (audioPlayer.duration) {
                 audioPlayer.currentTime = (e.target.value / 100) * audioPlayer.duration;
@@ -190,7 +190,14 @@
             });
 
             renderGroupedPlaylist();
-            playSong(0);
+            
+            // Logika auto-play berdasarkan Shuffle
+            if (isShuffle) {
+                const randomFirstIndex = Math.floor(Math.random() * allSongs.length);
+                playSong(randomFirstIndex);
+            } else {
+                playSong(0);
+            }
         });
 
         function renderGroupedPlaylist() {
@@ -244,7 +251,7 @@
             audioPlayer.src = URL.createObjectURL(songData.file);
             audioPlayer.play();
             nowPlaying.textContent = songData.name;
-            playPauseBtn.textContent = '⏸️'; // Set tombol ke Pause saat lagu mulai
+            playPauseBtn.textContent = '⏸️';
             
             const currentLi = document.getElementById(`song-${currentIndex}`);
             if (currentLi) {
@@ -257,7 +264,7 @@
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: songData.name,
                     artist: `📁 ${songData.folderName}`,
-                    album: 'MusicPlay'
+                    album: 'MusikKu PWA'
                 });
             }
         }
