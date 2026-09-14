@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MusikKu PWA</title>
+    <title>MusicPlay</title>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white font-sans h-screen flex flex-col">
     <!-- Header -->
     <header class="p-4 bg-gray-800 flex justify-between items-center z-10">
-        <h1 class="text-xl font-bold text-purple-400">MusikKu</h1>
+        <h1 class="text-xl font-bold text-purple-400">MusicPlay</h1>
         <label class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-full cursor-pointer text-sm font-semibold transition">
             Pilih Folder
             <input type="file" id="folderInput" class="hidden" webkitdirectory directory multiple>
@@ -176,7 +176,7 @@
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: songData.name,
                     artist: `📁 ${songData.folderName}`,
-                    album: 'MusikKu PWA'
+                    album: 'MusicPlay'
                 });
             }
         }
